@@ -16,8 +16,7 @@ var MovieDisplayBox=React.createClass({
 
       success: function(data)
       {
-       alert("Movie successfully stored");
-      console.log(data.Search);
+       alert(data);
       }.bind(this),
       error: function(err)
       {

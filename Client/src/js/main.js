@@ -1,42 +1,33 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var ChildComponent = require('./Components/ChildComponent.js');
-var DisplayMovie = require('./Components/DisplayMovie.js');
+var {browserHistory, Route, Router, IndexRoute,hasHistory} = require('react-router');
+var aboutComponent = require('./Components/about.js');
+var searchComponent = require('./Components/search.js');
+var HomeComponent = require('./Components/Home.js');
+var ViewFavMovies = require('./Components/ViewFavMovies.js');
+var ParentComponent = require('./Components/ParentComponent.js');
+var Navbar = require('./Components/Navbar.js');
+
 
 var MainComponent = React.createClass({
-
-  handleOnClick: function(title)
-{
- $.ajax({
-   url:'http://www.omdbapi.com/?s='+title,
-   type: 'GET',
-   dataType: 'JSON',
-
-   success: function(data)
-   {
-     this.setState({stateData:data.Search});
-     console.log(data.Search);
-   }.bind(this),
-   error: function(err)
-   {
-     console.log(err);
-   }.bind(this)
- });
- },
-  getInitialState: function () {
-    return {
-      stateData : []
-    };
-  },
   render:function(){
     return (
       <div>
-      <ChildComponent handleOn={this.handleOnClick}/>
-      <DisplayMovie movieObj={this.state.stateData}/>
+      <Navbar />
+      {this.props.children}
       </div>
-    )
+    );
   }
 });
 //when the method is called, this method gets instantiated, and returns the virtual DOM. after getting V DOM, it renders and display this div tagfrom index.
-ReactDOM.render(<MainComponent />,
-document.getElementById('app'));
+ReactDOM.render(
+  <Router history = {browserHistory}>
+  <Route path="/" component={MainComponent}>
+  <IndexRoute component={HomeComponent}/>
+  <Route path="/about" component={aboutComponent}/>
+  <Route path="/search" component={searchComponent}/>
+  <Route path="/home" component={HomeComponent}/>
+  <Route path="/savedmovies" component={ViewFavMovies}/>
+  </Route>
+
+  </Router>,document.getElementById('app'));

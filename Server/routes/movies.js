@@ -4,20 +4,38 @@ var User = require('../models/movies');
 
 router.route("/add")
   .post(function(req, res) {
-
+req.body["Comments"]="default comments";
     if(req.body)
     {
-      var userVar = new User(req.body);
-      userVar.save(function(err){
-        if(err)
-        {
-          res.send(err);
-        }
-        else
-          {
-            res.send("Movie inserted");
+      var result=[];
+      var cursor=db.collection('moviedetails').find({},{__v:false, _id:false});
+        cursor.forEach(function(data,err){
+          if(err){
+            console.log(err);
           }
-      });
+          result.push(data);
+
+        },function(){
+        var index = result.findIndex(function(movie){
+          return movie.imdbID===req.body.imdbID;
+        });
+        if(index!=-1){
+          res.send("Movie Already exist");
+        }
+        else {
+        var userVar = new User(req.body);
+        userVar.save(function(err){
+          if(err)
+          {
+            res.send(err);
+          }
+          else
+            {
+              res.send("Movie inserted");
+            }
+        });
+        }
+        });
     }
 });
 
@@ -35,7 +53,6 @@ var cursor=db.collection('moviedetails').find({},{__v:false, _id:false});
   },function(){
     console.log(result);
     res.json(result);
-
   });
   });
 
@@ -52,30 +69,35 @@ router.route("/retrieve")
 });
 });
 
-router.route("/delete/:title")
+router.route("/delete/:imdbID")
   .delete(function(req, res) {
-    var myObj = {Title:req.params.title};
+    var myObj = {imdbID:req.params.imdbID};
     console.log(myObj);
-        movieDb.remove({Title:req.params.title},function(err){
+        movieDb.remove({imdbID:req.params.imdbID},function(err){
           if(err){
             res.json(err);
           }
           else{
-            movieDb.find({},function(err, docs){
-              if(err){
-                res.json(err);
-              }
-              else{
-                    res.json({moviedb:docs});
-              }
-    });
+        var result=[];
+        var cursor=db.collection('moviedetails').find({},{__v:false, _id:false});
+          cursor.forEach(function(data,err){
+            if(err){
+              console.log(err);
+            }
+            result.push(data);
+
+          },function(){
+            console.log(result);
+            res.json(result);
+          });
           }
 });
 });
 
-router.route("/update/:title")
+router.route("/update/")
   .put(function(req, res) {
-        movieDb.update({Title:req.params.title},{Plot:req.body.Plot, Year:req.body.Year},function(err){
+    var myObj = {imdbID:req.body.imdbID,Comments:req.body.Comments};
+        movieDb.update({imdbID:req.body.imdbID},myObj,function(err){
           if(err){
             res.json(err);
           }
